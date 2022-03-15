@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "extension.proto";
+
+package service.sample4;
+
+message Request {
+
+}
+
+message Response {
+
+}
+//test2awsdfsdf
+service SampleService {
+  option (.go_serv.port) = 12099;
+  option (.go_serv.ipc_unix_socket) = "@go_serv.v1.service.sample";
+
+  rpc Single(Request) returns (Response) { }
+}

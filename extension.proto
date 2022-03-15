@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+package go_serv;
+
+enum CallerRole {
+  ADMIN = 0;
+}
+
+extend google.protobuf.ServiceOptions {
+  // Service default port
+  uint32 port = 60000;
+
+  // Unix domain socket for calls with endpoints residing on the same host
+  string ipc_unix_socket = 60001; // unix:service-path
+
+  // Enforce using end-to-end encryption for all service calls
+  bool enforce_enc = 60002;
+
+  // List of required roles to execute the call
+  repeated CallerRole required_roles = 60003;
+}
+
+extend google.protobuf.MethodOptions {
+  // Toggle on/off end-to-end encryption on method level
+  bool m_enforce_enc = 60100;
+
+  repeated CallerRole m_required_roles = 60101;
+
+  // Specifies whether a call can be invoked multiple times during a session
+  bool streamable = 60102;
+
+  // Open a new session with specified session lifetime in seconds
+  uint32 new_session = 60103;
+
+  // Ask server to close an opened session
+  bool close_session = 60104;
+
+  // Stick to the session opened by a preceding call
+  bool session_sticky = 60105;
+
+  // Call timeout in milliseconds
+  uint32 timeout = 60106;
+}

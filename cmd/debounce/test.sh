@@ -9,7 +9,17 @@ _echo() {
       echo "$i: $now"
       sleep ${sleep}s
     done
-  ) &
+  )
+  echo "Sleep 2s"
+  sleep 2s
+  echo "Run again"
+  (
+    for ((i = 1; i <= $n; i++)); do
+      now=$(date +%s)
+      echo "$i: $now"
+      sleep ${sleep}s
+    done
+  )
 }
 
 #

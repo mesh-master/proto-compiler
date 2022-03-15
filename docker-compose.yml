@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  protobuf-compiler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PROTOBUF_VER=3.19.4
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+      - PROTOBUF_GO_IMPORT_PREFIX=github.com/go-serv/utils/internal/autogen/proto
+    volumes:
+      - type: bind
+        source: ./internal/autogen/proto
+        target: /app/proto-compiled # default output directory for protoc
+      - type: bind
+        source: ./tests/api
+        target: /app/api # default directory for proto files
