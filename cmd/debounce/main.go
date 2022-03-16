@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"time"
 )
 
 const (
@@ -22,13 +23,13 @@ type cliArgs struct {
 }
 
 type appData struct {
-	readBuff         []byte
-	storeBuff        *bytes.Buffer
-	args             cliArgs
-	debounceWindow   int64
-	lastEventAt      int64
-	leadingEdgeEvent bool
-	quitCh           chan struct{}
+	readBuff        []byte
+	storeBuff       *bytes.Buffer
+	args            cliArgs
+	debounceTimer   *time.Timer
+	leadingEdgeFlag bool
+	eof             bool
+	quitCh          chan struct{}
 }
 
 func NewAppData() *appData {

@@ -12,9 +12,14 @@ var (
 	ErrStdoutWriteFailed = errors.New("failed to write to stdout")
 )
 
+func (app *appData) debounceTimerFn() {
+	app.pipeWriter()
+	app.leadingEdgeFlag = false
+	app.debounceTimer = nil
+}
+
 func (app *appData) pipeWriter() {
 	if app.storeBuff.Len() == 0 {
-		app.quitCh <- struct{}{}
 		return
 	}
 	_, err := os.Stdout.Write(app.storeBuff.Bytes())
@@ -28,27 +33,34 @@ func (app *appData) pipeWriter() {
 func (app *appData) pipeReader() bool {
 	n, err := os.Stdin.Read(app.readBuff)
 	if err == io.EOF {
+		app.eof = true
 		return true
 	} else if n == 0 {
 		return false
 	}
 	app.storeBuff.Write(app.readBuff[0:n])
-	now := time.Now().UnixMilli()
-	w := app.debounceWindow
-	app.debounceWindow = now + app.args.DebounceTimeMs // Move the debounce window
-	if now < w {
-		return false
-	} else {
+	timerRunning := app.debounceTimer != nil
+	// Stop old timer
+	if timerRunning {
+		app.debounceTimer.Stop()
+	}
+	app.debounceTimer = time.AfterFunc(time.Duration(app.args.DebounceTimeMs) * time.Millisecond, app.debounceTimerFn)
+	// Dispatch leading edge event
+	if app.args.LeadingEdge && ! app.leadingEdgeFlag {
+		app.leadingEdgeFlag = true
 		return true
+	} else {
+		return false
 	}
 }
 
 func (app *appData) handlePipeData() {
 	go func() {
-		for {
+		for ; ! app.eof ; {
 			if app.pipeReader() {
 				app.pipeWriter()
 			}
 		}
+		app.quitCh <- struct{}{}
 	}()
 }
