@@ -12,9 +12,7 @@ RUN apk update && apk add \
     build-base \
     autoconf \
     automake \
-    libtool \
-    inotify-tools \
-    vim
+    libtool
 
 # Install protoc
 ENV PROTOBUF_URL="https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOBUF_VER/protobuf-cpp-$PROTOBUF_VER.tar.gz"
@@ -38,8 +36,17 @@ RUN set -ex \
 ADD . /app
 RUN mkdir -p /app/api
 RUN cd /app && go install ./...
-RUN apk add gawk
 
+FROM alpine:3.14
+RUN set -xe \
+    && apk update \
+    && apk add gawk inotify-tools vim
+
+ENV GOROOT=/usr/local/go
+ENV PATH="/usr/local/go/bin:${PATH}"
+
+COPY --from=builder /usr/local/ /usr/local/
 COPY entrypoint.sh /entrypoint.sh
+
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
