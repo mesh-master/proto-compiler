@@ -18,8 +18,9 @@ var (
 )
 
 type cliArgs struct {
-	DebounceTimeMs int64 `short:"t" description:"Debounce time in milliseconds"`
-	LeadingEdge    bool  `long:"leading-edge" description:""`
+	DebounceTimeMs int64  `short:"t" description:"Debounce time in milliseconds"`
+	LeadingEdge    bool   `long:"leading-edge" description:""`
+	ReplaceInput   string `long:"replace-input" description:"Replaces all input with a specified string"`
 }
 
 type appData struct {

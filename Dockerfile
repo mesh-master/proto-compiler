@@ -48,12 +48,16 @@ RUN set -xe \
     && mkdir -p /app/api \
     && mkdir -p /share \
     && apk update \
-    && apk add gawk inotify-tools vim
+    && apk add gawk inotify-tools vim ncurses
 
 ENV GOROOT=/usr/local/go
 ENV PATH="/usr/local/go/bin:${PATH}"
 ENV GOBIN=/usr/local/bin
+ENV TERM=xterm-color
+ENV PS1='\e[33;1m\u@goenv-\h: \e[31m\W\e[0m\$ '
 
+COPY ./scripts/.profile /root
+RUN chmod +x /root/.profile
 COPY --from=builder /usr/local/ /usr/local/
 COPY --from=builder /export/lib/ /usr/lib/
 COPY --from=builder /export/proto/ /share/

@@ -22,7 +22,13 @@ func (app *appData) pipeWriter() {
 	if app.storeBuff.Len() == 0 {
 		return
 	}
-	_, err := os.Stdout.Write(app.storeBuff.Bytes())
+	var input []byte
+	if len(app.args.ReplaceInput) > 0 {
+		input = []byte(app.args.ReplaceInput)
+	} else {
+		input = app.storeBuff.Bytes()
+	}
+	_, err := os.Stdout.Write(input)
 	if err != nil {
 		log.Fatal(ErrStdoutWriteFailed)
 	}
@@ -44,9 +50,9 @@ func (app *appData) pipeReader() bool {
 	if timerRunning {
 		app.debounceTimer.Stop()
 	}
-	app.debounceTimer = time.AfterFunc(time.Duration(app.args.DebounceTimeMs) * time.Millisecond, app.debounceTimerFn)
+	app.debounceTimer = time.AfterFunc(time.Duration(app.args.DebounceTimeMs)*time.Millisecond, app.debounceTimerFn)
 	// Dispatch leading edge event
-	if app.args.LeadingEdge && ! app.leadingEdgeFlag {
+	if app.args.LeadingEdge && !app.leadingEdgeFlag {
 		app.leadingEdgeFlag = true
 		return true
 	} else {
@@ -56,7 +62,7 @@ func (app *appData) pipeReader() bool {
 
 func (app *appData) handlePipeData() {
 	go func() {
-		for ; ! app.eof ; {
+		for !app.eof {
 			if app.pipeReader() {
 				app.pipeWriter()
 			}

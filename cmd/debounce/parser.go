@@ -6,7 +6,7 @@ import (
 )
 
 func (app *appData) parseCliArgs() {
-	parser := flags.NewParser(&app.args, flags.IgnoreUnknown)
+	parser := flags.NewParser(&app.args, flags.Default)
 	_, err := parser.Parse()
 	if err != nil {
 		log.Fatal(err)
