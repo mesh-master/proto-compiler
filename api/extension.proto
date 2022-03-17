@@ -4,6 +4,7 @@ import "google/protobuf/descriptor.proto";
 
 package go_serv;
 
+//...
 enum CallerRole {
   ADMIN = 0;
 }

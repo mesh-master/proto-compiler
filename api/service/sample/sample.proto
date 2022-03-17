@@ -2,19 +2,15 @@ syntax = "proto3";
 
 import "extension.proto";
 
-package service.sample4;
+package service.sample;
 
-message Request {
+message Request { }
+message Response { }
 
-}
-
-message Response {
-
-}
-//test2awsdfsdf
+//...
 service SampleService {
   option (.go_serv.port) = 12099;
-  option (.go_serv.ipc_unix_socket) = "@go_serv.v1.service.sample";
+  option (.go_serv.ipc_unix_socket) = "@service.sample";
 
   rpc Single(Request) returns (Response) { }
 }

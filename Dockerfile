@@ -1,7 +1,7 @@
 #
 # This image builds protocol buffers library from source with Go generation support.
 #
-FROM golang:1.18rc1-alpine3.15 as builder
+FROM golang:1.18-alpine3.15 as builder
 
 ARG PROTOBUF_VER
 
@@ -27,26 +27,37 @@ RUN set -xe \
     && make check \
     && make install
 
-# Install protoc-gen-go
 ENV GOBIN=/usr/local/bin
-RUN set -ex \
+ADD . /app
+# Install utilities and export dependencies
+RUN set -xe \
+    && mkdir -p /export/lib \
+    && mkdir -p /export/proto \
+    && cd /app && go install ./... \
+    && cp /usr/lib/libstdc++* /export/lib/ \
+    && cp /usr/lib/libgcc_s* /export/lib/ \
+    && cp /app/api/*.proto /export/proto/
+
+# Install protoc-gen-go
+RUN set -xe \
     && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
     && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
-ADD . /app
-RUN mkdir -p /app/api
-RUN cd /app && go install ./...
-
-FROM alpine:3.14
+FROM alpine:3.15 as goenv
 RUN set -xe \
+    && mkdir -p /app/api \
+    && mkdir -p /share \
     && apk update \
     && apk add gawk inotify-tools vim
 
 ENV GOROOT=/usr/local/go
 ENV PATH="/usr/local/go/bin:${PATH}"
+ENV GOBIN=/usr/local/bin
 
 COPY --from=builder /usr/local/ /usr/local/
-COPY entrypoint.sh /entrypoint.sh
+COPY --from=builder /export/lib/ /usr/lib/
+COPY --from=builder /export/proto/ /share/
 
+COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

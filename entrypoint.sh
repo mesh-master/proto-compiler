@@ -29,10 +29,11 @@ compile_proto() {
   local proto_dir=/tmp/proto-$(date +%s)
   local proto_out=/tmp/proto-compiled-$(date +%s)
 
-  mkdir -p $proto_dir
+  mkdir -p $proto_dir/go_serv
   mkdir -p $proto_out
   cp -r /app/api/* $proto_dir/
-  cp /app/extension.proto $proto_dir
+  # Copy root proto files
+  cp -r /share/*.proto $proto_dir/go_serv/
 
   find $proto_dir -name '*.proto' -type f | while read file;
     do
@@ -44,7 +45,7 @@ compile_proto() {
   find $proto_dir -name '*.proto' -type f | while read file;
     do
       echo "Compiling $(basename $file)..."
-      protoc -I"$proto_dir" \
+      protoc -I"$proto_dir" -I"$proto_dir"/go_serv \
         --go_opt=paths=source_relative \
         --go-grpc_opt=paths=source_relative \
         --go_out=$proto_out \
