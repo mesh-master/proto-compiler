@@ -62,6 +62,7 @@ compile_proto() {
     done
   _done
 
+  rm -rf $proto_compiled_mounted_dir/*
   cp -r $proto_out/* $proto_compiled_mounted_dir/
   chown -R $USER_ID:$GROUP_ID $proto_compiled_mounted_dir
   rm -rf $proto_out

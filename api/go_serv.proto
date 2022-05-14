@@ -4,30 +4,21 @@ import "google/protobuf/descriptor.proto";
 
 package go_serv;
 
-//...
-enum CallerRole {
-  ADMIN = 0;
-}
-
 extend google.protobuf.ServiceOptions {
-  // Service default port
-  uint32 port = 60000;
+  // Network service default port.
+  uint32 net_default_port = 60000;
 
-  // Unix domain socket for calls with endpoints residing on the same host
-  string ipc_unix_socket = 60001; // unix:service-path
+  // Enforce using end-to-end encryption for all service calls.
+  bool net_enforce_enc = 60001;
 
-  // Enforce using end-to-end encryption for all service calls
-  bool enforce_enc = 60002;
-
-  // List of required roles to execute the call
-  repeated CallerRole required_roles = 60003;
+  // A pathname for unix domain socket. If not specified defaults to the service name.
+  // On Linux an abstract unix domain socket will be used with a pathname automatically prepended with '@'.
+  string local_ipc_pathname = 60002;
 }
 
 extend google.protobuf.MethodOptions {
   // Toggle on/off end-to-end encryption on method level
-  bool m_enforce_enc = 60100;
-
-  repeated CallerRole m_required_roles = 60101;
+  bool m_net_enforce_enc = 60100;
 
   // Specifies whether a call can be invoked multiple times during a session
   bool streamable = 60102;

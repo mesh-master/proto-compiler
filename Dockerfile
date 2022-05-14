@@ -32,16 +32,18 @@ ADD . /app
 # Install utilities and export dependencies
 RUN set -xe \
     && mkdir -p /export/lib \
-    && mkdir -p /export/proto \
     && cd /app && go install ./... \
     && cp /usr/lib/libstdc++* /export/lib/ \
-    && cp /usr/lib/libgcc_s* /export/lib/ \
-    && cp /app/api/*.proto /export/proto/
+    && cp /usr/lib/libgcc_s* /export/lib/
 
 # Install protoc-gen-go
 RUN set -xe \
     && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
     && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+RUN set -xe \
+    && mkdir -p /export/proto \
+    && cp /app/api/*.proto /export/proto/
 
 FROM alpine:3.15 as goenv
 RUN set -xe \

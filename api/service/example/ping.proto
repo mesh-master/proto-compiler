@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package go_serv.net.ping;
+
+message Ping {
+  message Request {
+    string hello = 1;
+  }
+  message Response {
+    string hello = 1;
+  }
+}
