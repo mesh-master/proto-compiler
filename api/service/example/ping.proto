@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package go_serv.net.ping;
+package service.example;
 
 message Ping {
   message Request {

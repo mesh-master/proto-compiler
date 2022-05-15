@@ -41,13 +41,8 @@ RUN set -xe \
     && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
     && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
-RUN set -xe \
-    && mkdir -p /export/proto \
-    && cp /app/api/*.proto /export/proto/
-
 FROM alpine:3.15 as goenv
 RUN set -xe \
-    && mkdir -p /app/api \
     && mkdir -p /share \
     && apk update \
     && apk add gawk inotify-tools vim ncurses
@@ -62,7 +57,6 @@ COPY ./scripts/.profile /root
 RUN chmod +x /root/.profile
 COPY --from=builder /usr/local/ /usr/local/
 COPY --from=builder /export/lib/ /usr/lib/
-COPY --from=builder /export/proto/ /share/
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

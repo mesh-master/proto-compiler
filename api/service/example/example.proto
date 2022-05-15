@@ -1,15 +1,13 @@
 syntax = "proto3";
 
-import "go_serv.proto";
-import "example/ping.proto";
+import "service/example/ping.proto";
 
-package go_serv.net.ping;
+package service.example;
 
 //
 service ExampleService {
-  option (.go_serv.net_default_port) = 12099;
-  option (.go_serv.local_ipc_pathname) = "@go_serv.net.ping";
-
   rpc Ping(Ping.Request) returns (Ping.Response) {
+
+
   }
 }

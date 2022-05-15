@@ -35,11 +35,10 @@ compile_proto() {
   local proto_dir=/tmp/proto-$(date +%s)
   local proto_out=/tmp/proto-compiled-$(date +%s)
 
-  mkdir -p $proto_dir/go_serv
+  mkdir -p $proto_dir
   mkdir -p $proto_out
-  cp -r /app/api/* $proto_dir/
-  # Copy root proto files
-  cp -r /share/*.proto $proto_dir/go_serv/
+  # Copy proto files to compile
+  cp -r /share/* $proto_dir/
 
   started_at "auto-generating go_option"
   find $proto_dir -name '*.proto' -type f | while read file;
@@ -53,7 +52,7 @@ compile_proto() {
   find $proto_dir -name '*.proto' -type f | while read file;
     do
       echo -e "\t...$(basename $file)"
-      protoc -I"$proto_dir" -I"$proto_dir"/go_serv \
+      protoc -I"$proto_dir" \
         --go_opt=paths=source_relative \
         --go-grpc_opt=paths=source_relative \
         --go_out=$proto_out \
@@ -85,8 +84,8 @@ fi
 source ~/.profile
 
 # Monitor changes of all proto files and compile them after each change
-inotifywait -m -e close_write -e delete -r --include='.proto$' /app/api \
-  | debounce -t 8000 --replace-input="$(echo)" \
+inotifywait -m -e close_write -e delete -r --include='.proto$' /share \
+  | debounce -t 4000 --replace-input="$(echo)" \
   | while read;
 do
   compile_proto
