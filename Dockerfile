@@ -45,7 +45,17 @@ FROM alpine:3.15 as goenv
 RUN set -xe \
     && mkdir -p /share \
     && apk update \
-    && apk add gawk inotify-tools vim ncurses
+    && apk add \
+      bash \
+      gawk \
+      inotify-tools \
+      vim \
+      ncurses \
+      npm
+
+RUN set -xe \
+    && npm install -g ts-protoc-gen@next \
+    && npm install -g google-protobuf @types/google-protobuf @improbable-eng/grpc-web
 
 ENV GOROOT=/usr/local/go
 ENV PATH="/usr/local/go/bin:${PATH}"
@@ -60,4 +70,6 @@ COPY --from=builder /export/lib/ /usr/lib/
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+SHELL ["/bin/bash", "-ec"]
 ENTRYPOINT ["/entrypoint.sh"]
