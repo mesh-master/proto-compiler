@@ -1,13 +1,8 @@
 version: "3.9"
 
 services:
-  protobuf-compiler:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - PROTOBUF_VER=3.19.4
-      target: goenv
+  main:
+    image: go-serv_utils
     environment:
       - USER_ID=1000
       - GROUP_ID=1000

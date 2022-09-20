@@ -1,7 +1,7 @@
 #
 # This image builds protocol buffers library from source with Go generation support.
 #
-FROM golang:1.18-alpine3.15 as builder
+FROM golang:1.19.1-alpine3.16 as builder
 
 ARG PROTOBUF_VER
 
@@ -39,9 +39,9 @@ RUN set -xe \
 # Install protoc-gen-go
 RUN set -xe \
     && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
-    && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+    && go install github.com/go-serv/grpc-go/cmd/protoc-gen-go-grpc@80214d5 # fix version
 
-FROM alpine:3.15 as goenv
+FROM alpine:3.16.2 as goenv
 RUN set -xe \
     && mkdir -p /share \
     && apk update \
@@ -55,7 +55,9 @@ RUN set -xe \
 
 RUN set -xe \
     && npm install -g ts-protoc-gen@next \
-    && npm install -g google-protobuf @types/google-protobuf @improbable-eng/grpc-web
+    && npm install -g google-protobuf @types/google-protobuf @improbable-eng/grpc-web \
+	&& npm install -g rollup \
+    && npm install -g babel-jest jest ts-jest
 
 ENV GOROOT=/usr/local/go
 ENV PATH="/usr/local/go/bin:${PATH}"

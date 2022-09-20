@@ -4,10 +4,8 @@ import "service/example/ping.proto";
 
 package service.example;
 
-//..
+//
 service ExampleService {
   rpc Ping(Ping.Request) returns (Ping.Response) {
-
-
   }
 }
