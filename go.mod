@@ -1,4 +1,4 @@
-module github.com/go-serv/utils
+module github.com/go-serv/proto-compiler
 
 go 1.18
 

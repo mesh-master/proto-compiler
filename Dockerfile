@@ -17,7 +17,7 @@ RUN apk update && apk add \
 # Install protoc
 ENV PROTOBUF_URL="https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOBUF_VER/protobuf-cpp-$PROTOBUF_VER.tar.gz"
 RUN curl -L -o /tmp/protobuf.tar.gz $PROTOBUF_URL
-RUN set -xe \
+RUN set -e \
     && cd /tmp/ \
     && tar xvzf protobuf.tar.gz \
     && cd "/tmp/protobuf-$PROTOBUF_VER" \
@@ -30,19 +30,19 @@ RUN set -xe \
 ENV GOBIN=/usr/local/bin
 ADD . /app
 # Install utilities and export dependencies
-RUN set -xe \
+RUN set -e \
     && mkdir -p /export/lib \
     && cd /app && go install ./... \
     && cp /usr/lib/libstdc++* /export/lib/ \
     && cp /usr/lib/libgcc_s* /export/lib/
 
 # Install protoc-gen-go
-RUN set -xe \
+RUN set -e \
     && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
-    && go install github.com/go-serv/grpc-go/cmd/protoc-gen-go-grpc@80214d5 # fix version
+    && go install github.com/go-serv/grpc-go/cmd/protoc-gen-go-grpc@cbb6d47ba # fix version
 
 FROM alpine:3.16.2 as goenv
-RUN set -xe \
+RUN set -e \
     && mkdir -p /share \
     && apk update \
     && apk add \
@@ -53,11 +53,14 @@ RUN set -xe \
       ncurses \
       npm
 
-RUN set -xe \
-    && npm install -g ts-protoc-gen@next \
-    && npm install -g google-protobuf @types/google-protobuf @improbable-eng/grpc-web \
-	&& npm install -g rollup \
-    && npm install -g babel-jest jest ts-jest
+RUN set -e \
+    && npm install -g ts-protoc-gen@next
+
+#RUN set -xe \
+#    && npm install -g ts-protoc-gen@next \
+#    && npm install -g google-protobuf @types/google-protobuf @improbable-eng/grpc-web \
+#	&& npm install -g rollup \
+#    && npm install -g babel-jest jest ts-jest
 
 ENV GOROOT=/usr/local/go
 ENV PATH="/usr/local/go/bin:${PATH}"
