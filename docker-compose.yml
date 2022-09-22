@@ -18,4 +18,4 @@ services:
         target: /app/proto/commonjs
       - type: bind
         source: ./api
-        target: /share # default directory for proto files
+        target: /share
