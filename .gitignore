@@ -5,10 +5,6 @@
 *.so
 *.dylib
 
-# Auto-generated files
-internal/autogen
-web/js
-
 # Test binary, built with `go test -c`
 *.test
 

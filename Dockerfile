@@ -4,6 +4,8 @@
 FROM golang:1.19.1-alpine3.16 as builder
 
 ARG PROTOBUF_VER
+ARG USER_ID
+ARG GROUP_ID
 
 # System setup
 RUN apk update && apk add \
@@ -62,6 +64,8 @@ RUN set -e \
 #	&& npm install -g rollup \
 #    && npm install -g babel-jest jest ts-jest
 
+ENV USER_ID=$USER_ID
+ENV GROUP_ID=$GROUP_ID
 ENV GOROOT=/usr/local/go
 ENV PATH="/usr/local/go/bin:${PATH}"
 ENV GOBIN=/usr/local/bin
