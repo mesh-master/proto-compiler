@@ -41,7 +41,7 @@ RUN set -e \
 # Install protoc-gen-go
 RUN set -e \
     && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
-    && go install github.com/go-serv/grpc-go/cmd/protoc-gen-go-grpc@cbb6d47ba # fix version
+    && go install github.com/go-serv/grpc-go/cmd/protoc-gen-go-grpc@4acfcc17 # fix version
 
 FROM alpine:3.16.2 as goenv
 RUN set -e \
