@@ -29,6 +29,12 @@ get_package_name() {
   echo -n $(gawk -e 'match($0, /^\s*package\s+([a-zA-Z0-9_.]+);$/, m) {print m[1]}' $file)
 }
 
+basename_with_parent() {
+  local parentdir
+  parentdir=$(basename "$(dirname "$1")")
+  echo  "$parentdir"/$(basename $1)
+}
+
 get_go_path_postfix() {
   local file=$1
   echo -n $(get_package_name $file | tr '.' '/')
@@ -54,7 +60,7 @@ compile_go_proto() {
   started_at "auto-generating go_option"
   find $proto_tmp -name '*.proto' -type f | while read file;
     do
-      echo -e "\t...$(basename $file)"
+      echo -e "\t$(basename_with_parent $file)"
       autogen_go_package_option $file
     done
   _done
@@ -62,7 +68,7 @@ compile_go_proto() {
   started_at "compiling proto files, target Golang"
   find $proto_tmp -name '*.proto' -type f | while read file;
     do
-      echo -e "\t...$(basename $file)"
+      echo -e "\t$(basename_with_parent $file)"
       protoc -I"$proto_tmp" \
         --go_opt=paths=source_relative \
         --go-grpc_opt=paths=source_relative \
