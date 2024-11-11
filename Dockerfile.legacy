@@ -1,87 +1,52 @@
 #
 # This image builds protocol buffers library from source with Go generation support.
 #
-FROM golang:1.20.4-debian as builder
+FROM golang:1.20.4-buster as builder
 
-ARG PROTOBUF_VER
 ARG USER_ID
 ARG GROUP_ID
 
-# System setup
-RUN apk update && apk add \
-    git \
-    curl \
-    build-base \
-    autoconf \
-    automake \
-    libtool
+ENV USER_ID=$USER_ID
+ENV GROUP_ID=$GROUP_ID
+ENV GOBIN=/usr/bin
+ENV TERM=xterm-color
+ENV PS1='\e[33;1m\u@goenv-\h: \e[31m\W\e[0m\$ '
 
 # Install protoc
-ENV PROTOBUF_URL="https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOBUF_VER/protobuf-cpp-$PROTOBUF_VER.tar.gz"
-RUN curl -L -o /tmp/protobuf.tar.gz $PROTOBUF_URL
 RUN set -e \
-    && cd /tmp/ \
-    && tar xvzf protobuf.tar.gz \
-    && cd "/tmp/protobuf-$PROTOBUF_VER" \
-    && ./autogen.sh \
-    && ./configure --prefix=/usr/local \
-    && make -j 3 \
-    && make check \
-    && make install
-
-ENV GOBIN=/usr/local/bin
-ADD . /app
-# Install utilities and export dependencies
-RUN set -e \
-    && mkdir -p /export/lib \
-    && cd /app && go install ./... \
-    && cp /usr/lib/libstdc++* /export/lib/ \
-    && cp /usr/lib/libgcc_s* /export/lib/
+    && apt update \
+    && apt install curl gnupg \
+    &&  curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor -o /usr/share/keyrings/bazel-archive-keyring.gpg \
+    &&  echo "deb [signed-by=/usr/share/keyrings/bazel-archive-keyring.gpg] https://storage.googleapis.com/bazel-apt stable jdk1.8" |  tee /etc/apt/sources.list.d/bazel.list >/dev/null \
+    &&  apt update \
+    &&  apt-get install g++ git bazel \
+    &&  cd /tmp && git clone https://github.com/protocolbuffers/protobuf.git \
+    &&  cd protobuf \
+    &&  git submodule update --init --recursive \
+    &&  bazel build :protoc :protobuf \
+    &&  cp bazel-bin/protoc /usr/bin/ \
+    &&  cp -r src/google /usr/include/
 
 # Install protoc-gen-go
 RUN set -e \
     && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
     && cd /tmp \
-    && git clone --depth 1 https://github.com/go-serv/grpc-go \
+    && git clone --depth 1 https://github.com/mesh-master/grpc-go.git \
     && cd /tmp/grpc-go/cmd/protoc-gen-go-grpc \
     && go install ./...
 
-FROM alpine:3.16.2 as goenv
 RUN set -e \
-    && mkdir -p /share \
-    && apk update \
-    && apk add \
-      bash \
-      gawk \
-      inotify-tools \
-      vim \
-      ncurses \
-      npm
-
-RUN set -e \
-    && npm install -g ts-protoc-gen@next
-
-#RUN set -xe \
-#    && npm install -g ts-protoc-gen@next \
-#    && npm install -g google-protobuf @types/google-protobuf @improbable-eng/grpc-web \
-#	&& npm install -g rollup \
-#    && npm install -g babel-jest jest ts-jest
-
-ENV USER_ID=$USER_ID
-ENV GROUP_ID=$GROUP_ID
-ENV GOROOT=/usr/local/go
-ENV PATH="/usr/local/go/bin:${PATH}"
-ENV GOBIN=/usr/local/bin
-ENV TERM=xterm-color
-ENV PS1='\e[33;1m\u@goenv-\h: \e[31m\W\e[0m\$ '
+    && apt update \
+    && apt install -y inotify-tools vim gawk
 
 COPY ./scripts/.profile /root
 RUN chmod +x /root/.profile
-COPY --from=builder /usr/local/ /usr/local/
-COPY --from=builder /export/lib/ /usr/lib/
+
+# Install utilities
+ADD . /app
+RUN set -e \
+    && cd /app && go install ./...
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-
-SHELL ["/bin/bash", "-ec"]
 ENTRYPOINT ["/entrypoint.sh"]
