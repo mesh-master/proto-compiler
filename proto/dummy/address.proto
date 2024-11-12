@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package dummy;
+
+//+nanopb
+
+// Define a message for Address
+message Address {
+  string street = 1;  // Field with number 1
+  string city = 2;
+  string state = 3;
+  string postal_code = 4;
+}

@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "dummy/address.proto";
+
+package dummy;
+
+// Define an Enum for status
+enum Status {
+  UNKNOWN = 0;  // Default value is 0
+  PENDING = 1;
+  COMPLETED = 2;
+  FAILED = 3;
+}
+
+// Define a message for Contact
+message Contact {
+  string name = 1;
+  string email = 2;
+  string phone_number = 3;
+  Address address = 4;  // Nested message type
+  Status status = 5;    // Using Enum type
+}
+
+// Define a message for a User
+message User {
+  string user_id = 1;    // Unique identifier for the user
+  string username = 2;
+  string password = 3;
+  repeated string roles = 4; // Repeated field for storing multiple roles
+  Contact contact = 5;   // Nested Contact message
+  map<string, string> preferences = 6; // Map of key-value pairs for preferences
+
+  // Oneof is used to specify that only one of the fields can be set at a time
+  oneof user_info {
+    int32 age = 7;   // Age is part of oneof group
+    string date_of_birth = 8; // Date of birth, mutually exclusive with age
+  }
+
+  // Optional fields (in proto3, all fields are optional by default unless specified)
+  string optional_field = 9;
+
+  // Default values: In proto3, fields have default values.
+  // For example, a string has a default empty string, and an int32 has default 0.
+}
+
+// Define a message for a Product with a repeated field and nested message
+message Product {
+  string product_id = 1;
+  string name = 2;
+  float price = 3;
+  repeated string tags = 4;  // Repeated field
+  Address manufacturer_address = 5;  // Nested Address message
+}
+
+// Define a service that uses the messages
+service UserService {
+  // RPC methods
+  rpc CreateUser (User) returns (User);
+  rpc GetUser (User) returns (User);
+  rpc UpdateUser (User) returns (User);
+  rpc DeleteUser (User) returns (google.protobuf.Empty); // Using Empty from Google's protobuf
+}
+
+// Example of Google-specific imports and features
+
+// Import Google’s empty message type
+import "google/protobuf/empty.proto";
+
+// Define a simple response message with a timestamp
+message TimestampResponse {
+  google.protobuf.Timestamp timestamp = 1;
+}

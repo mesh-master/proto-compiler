@@ -1,19 +1,21 @@
 version: "3.9"
 
 services:
-  go-serv_foundation:
+  pb-samples:
     image: pb-compiler
-    container_name: mm-app
     environment:
       - USER_ID=1000
       - GROUP_ID=1000
-      - PBC_GO_IMPORT_PREFIX=github.com/mesh-master/mesh-master/internal/autogen
+      - PROTO_GO_IMPORT_PREFIX=github.com/mesh-master/mesh-master/internal/autogen
       - PROTO_COMPILE_DELAY=1000 # Debounce changes of the proto files for the specified amount of time before compiling, ms
     network_mode: host
     volumes:
       - type: bind
-        source: ./api
-        target: /share/mesh_master
+        source: ./proto
+        target: /proto/source
       - type: bind
-        source: ./internal/autogen
-        target: /app/autogen/go
+        source: ./autogen/nanopb
+        target: /proto/autogen/nanopb
+      - type: bind
+        source: ./autogen/go
+        target: /proto/autogen/go

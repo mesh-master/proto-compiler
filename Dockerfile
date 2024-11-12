@@ -1,12 +1,13 @@
 #
 # This image builds protocol buffers library from source with Go generation support.
 #
-FROM golang:1.23.3-bookworm as builder
+FROM golang:1.23.3-bookworm
 
 ARG USER_ID
 ARG GROUP_ID
 
-ARG PROTO_ZIP_FILE="protoc-28.3-linux-x86_64.zip"
+ARG PROTOBUF_VER=28.3
+ARG PROTO_ZIP_FILE="protoc-${PROTOBUF_VER}-linux-x86_64.zip"
 
 ENV USER_ID=$USER_ID
 ENV GROUP_ID=$GROUP_ID
@@ -17,19 +18,17 @@ ENV PS1='\e[33;1m\u@goenv-\h: \e[31m\W\e[0m\$ '
 # Install protoc
 RUN cd /tmp \
     && apt update \
-    && apt install -y unzip python3-pip python3.11-venv \
+    && apt install -y unzip python3-pip \
     && apt install -y inotify-tools vim gawk \
-    && wget https://github.com/protocolbuffers/protobuf/releases/download/v28.3/$PROTO_ZIP_FILE \
+    && wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VER}/${PROTO_ZIP_FILE} \
     && unzip $PROTO_ZIP_FILE \
-    && cp -r include/ /usr/include/ \
+    && mv include/google /usr/include/ \
     && cp bin/protoc /usr/bin/ \
     && rm -rf include bin readme.txt
 
 RUN cd / \
     && git clone https://github.com/mesh-master/nanopb.git \
-    && python3 -m venv /nanopb \
-    && . /nanopb/bin/activate \
-    && pip3 install grpcio-tools
+    && pip3 install grpcio-tools --break-system-packages
 
 # Install protoc-gen-go
 RUN set -e \

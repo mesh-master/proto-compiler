@@ -1,4 +1,4 @@
-module github.com/go-serv/proto-compiler
+module github.com/mesh-master/proto-compiler
 
 go 1.18
 
