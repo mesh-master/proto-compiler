@@ -31,7 +31,9 @@ RUN cd / \
     && pip3 install grpcio-tools --break-system-packages
 
 # Install protoc-gen-go
+ARG GO_PLUGINS_CACHE_BUSTER
 RUN set -e \
+    && echo "\nInstalling latest gRPC Go plugins\n" \
     && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
     && cd /tmp \
     && git clone --depth 1 https://github.com/mesh-master/grpc-go.git \
